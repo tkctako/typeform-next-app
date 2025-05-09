@@ -1,103 +1,147 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useState } from 'react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [responses, setResponses] = useState([]);
+  const [questions, setQuestions] = useState([]);
+  const [weights, setWeights] = useState({});
+  const [customWeights, setCustomWeights] = useState({});
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  // 取得回覆資料
+  const fetchResponses = async () => {
+    const res = await fetch('/api/get-responses');
+    const data = await res.json();
+    console.log('fetchResponses', data);
+    setResponses(data.items || []);
+  };
+
+  // 取得題目資料
+  const fetchQuestions = async () => {
+    const res = await fetch('/api/get-questions');
+    const data = await res.json();
+    console.log('fetchQuestions', data);
+    setQuestions(data.fields || []);
+  };
+
+  useEffect(() => {
+    fetchResponses();
+    fetchQuestions();
+  }, []);
+
+  // 權重輸入處理
+  const handleWeightChange = (id, value) => {
+    setWeights((prev) => ({ ...prev, [id]: value }));
+  };
+
+  // 圖片九個項目
+  const customItems = [
+    "腸胃", "關節", "泌尿", "皮毛", "情緒", "體重", "心血管", "眼睛", "免疫"
+  ];
+
+  // 權重輸入處理
+  const handleCustomWeightChange = (item, value) => {
+    setCustomWeights((prev) => ({ ...prev, [item]: value }));
+  };
+
+  return (
+    <main className="min-h-screen bg-gray-100 p-6 space-y-10">
+      <div className="max-w-5xl mx-auto bg-white p-6 rounded shadow">
+        <h2 className="text-2xl font-bold mb-4">Typeform 回覆資料</h2>
+        {responses.length === 0 ? (
+          <p className="text-gray-500">尚無回覆資料</p>
+        ) : (
+          <ul className="space-y-4">
+            {responses.map((res, index) => (
+              <li key={res.response_id} className="border rounded p-4 bg-gray-50">
+                <p className="text-sm text-gray-700 font-medium">回覆 #{index + 1}</p>
+                <ul className="list-disc list-inside text-sm mt-2 text-gray-600">
+                  {res.answers.map((ans, i) => {
+                    // 根據 field id 找到對應題目
+                    const question = questions.find(q => q.id === ans.field?.id);
+                    return (
+                      <li key={i}>
+                        {/* 顯示題目名稱，找不到就顯示 id */}
+                        {question ? question.title : ans.field?.id}：
+                        {ans.type === 'text' && ` ${ans.text}`}
+                        {ans.type === 'boolean' && ` ${ans.boolean ? '是' : '否'}`}
+                        {ans.type === 'choice' && ` ${ans.choice?.label || JSON.stringify(ans.choice)}`}
+                        {ans.type === 'choices' && ans.choices?.labels
+                          ? ` ${ans.choices.labels.join(', ')}`
+                          : ans.type === 'choices' && JSON.stringify(ans.choices)}
+                        {/* 其他型別 fallback */}
+                        {['text', 'boolean', 'choice', 'choices'].indexOf(ans.type) === -1 && ` ${JSON.stringify(ans[ans.type])}`}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="max-w-5xl mx-auto bg-white p-6 rounded shadow">
+        <h2 className="text-2xl font-bold mb-4">設定題目權重</h2>
+        {questions.length === 0 ? (
+          <p className="text-gray-500">尚未載入題目</p>
+        ) : (
+          <table className="table-auto w-full border border-gray-300 text-sm">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="border p-2 text-left">題目</th>
+                <th className="border p-2 text-left">類型</th>
+                <th className="border p-2 text-left">設定權重</th>
+              </tr>
+            </thead>
+            <tbody>
+              {questions.map((q) => (
+                <tr key={q.id} className="bg-white">
+                  <td className="border p-2">{q.title}</td>
+                  <td className="border p-2">{q.type}</td>
+                  <td className="border p-2">
+                    <input
+                      type="number"
+                      className="w-24 px-2 py-1 border rounded"
+                      value={weights[q.id] || ''}
+                      onChange={(e) => handleWeightChange(q.id, e.target.value)}
+                      placeholder="0~100"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div className="max-w-5xl mx-auto bg-white p-6 rounded shadow">
+        <h2 className="text-2xl font-bold mb-4">設定九大項目權重</h2>
+        <table className="table-auto w-full border border-gray-300 text-sm">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="border p-2 text-left">項目</th>
+              <th className="border p-2 text-left">設定權重</th>
+            </tr>
+          </thead>
+          <tbody>
+            {customItems.map((item) => (
+              <tr key={item} className="bg-white">
+                <td className="border p-2">{item}</td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    className="w-24 px-2 py-1 border rounded"
+                    value={customWeights[item] || ''}
+                    onChange={(e) => handleCustomWeightChange(item, e.target.value)}
+                    placeholder="0~100"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </main>
   );
 }
