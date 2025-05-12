@@ -8,6 +8,17 @@ export default function Home() {
   const [weights, setWeights] = useState({});
   const [customWeights, setCustomWeights] = useState({});
 
+  async function sendMessage() {
+    const res = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: '你', message: '哈囉 MongoDB' })
+    })
+  
+    const result = await res.json()
+    alert(result.message)
+  }
+  
   // 取得回覆資料
   const fetchResponses = async () => {
     const res = await fetch('/api/get-responses');
@@ -46,6 +57,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-100 p-6 space-y-10">
+      <button onClick={sendMessage}>測試API</button>
       <div className="max-w-5xl mx-auto bg-white p-6 rounded shadow">
         <h2 className="text-2xl font-bold mb-4">Typeform 回覆資料</h2>
         {responses.length === 0 ? (
