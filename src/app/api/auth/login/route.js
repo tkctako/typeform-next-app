@@ -34,14 +34,20 @@ export async function POST(request) {
 
     // 生成 JWT token
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
+      { userId: user._id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
     // 設置 cookie
     const response = NextResponse.json(
-      { message: '登入成功' },
+      { 
+        message: '登入成功',
+        user: {
+          email: user.email,
+          name: user.name
+        }
+      },
       { status: 200 }
     );
 
