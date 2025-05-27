@@ -41,6 +41,13 @@ export default function Home() {
   }
   
   // 取得回覆資料
+  const fetchResponse = async () => {
+    const res = await fetch('/api/get-response/ziqd4l0nxahn9naziqd42md29y1hc5la');
+    const data = await res.json();
+    console.log('問卷詳細fetchResponse', data);
+  };
+
+  // 取得回覆資料
   const fetchResponses = async () => {
     const res = await fetch('/api/get-responses');
     const data = await res.json();
@@ -59,6 +66,7 @@ export default function Home() {
   useEffect(() => {
     fetchResponses();
     fetchQuestions();
+    fetchResponse();
     fetchProducts();
     fetchCustomers();
     fetchCustomers('655336');
