@@ -26,7 +26,7 @@ export default function Header() {
             {user && (
               <button
                 onClick={logout}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                className="bg-red-500 font-bold text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
               >
                 登出
               </button>

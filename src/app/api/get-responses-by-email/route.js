@@ -1,4 +1,4 @@
-// src/app/api/get-responses/route.js
+// src/app/api/get-responses-by-email/route.js
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,11 +11,24 @@ export async function OPTIONS() {
   return new Response(null, { status: 200, headers: corsHeaders });
 }
 
-export async function GET() {
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const email = searchParams.get('email');
+
+  if (!email) {
+    return new Response(JSON.stringify({ message: 'Email query parameter is required' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
   const TYPEFORM_TOKEN = process.env.TYPEFORM_TOKEN;
   const FORM_ID = process.env.FORM_ID;
 
-  const res = await fetch(`https://api.typeform.com/forms/${FORM_ID}/responses`, {
+  const url = new URL(`https://api.typeform.com/forms/${FORM_ID}/responses`);
+  url.searchParams.append('query', email);
+
+  const res = await fetch(url.toString(), {
     headers: {
       Authorization: `Bearer ${TYPEFORM_TOKEN}`,
     },
@@ -27,4 +40,4 @@ export async function GET() {
     status: res.ok ? 200 : res.status,
     headers: corsHeaders,
   });
-}
+} 

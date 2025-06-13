@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+
 const TYPEFORM_TOKEN = process.env.TYPEFORM_TOKEN;
 const FORM_ID = process.env.FORM_ID;
 
@@ -28,7 +29,6 @@ export async function GET(request, { params }) {
         }
       );
     }
-    console.log('responseId',  `https://api.typeform.com/forms/${FORM_ID}/responses?included_response_ids=${responseId}`);
     const res = await fetch(
       `https://api.typeform.com/forms/${FORM_ID}/responses?included_response_ids=${responseId}`,
       {

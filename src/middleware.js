@@ -28,13 +28,7 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
-    /*
-     * 匹配所有路徑除了：
-     * - api/auth/login (登入 API)
-     * - _next/static (靜態文件)
-     * - _next/image (圖片優化)
-     * - favicon.ico (網站圖標)
-     */
-    '/((?!api/auth/login|_next/static|_next/image|favicon.ico).*)',
+    // 排除 /api/test 和所有 /api/get-response 開頭的路徑
+    '/((?!api/test|api/get-response(?:/.*)?|api/get-responses-by-email(?:/.*)?|_next/static|_next/image|favicon.ico).*)',
   ],
 };

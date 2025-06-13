@@ -29,6 +29,19 @@ export default function Home() {
   // 推薦商品暫存資料 { [item]: { 1: { products: [], note: '', productInput: '' }, ...10 } }
   const [recommendCache, setRecommendCache] = useState({});
 
+  // 九大項英文代碼與中文對照
+  const itemMap = {
+    digestive: "腸胃",
+    joint: "關節",
+    urinary: "泌尿",
+    skin: "皮毛",
+    emotion: "情緒",
+    weight: "體重",
+    cardiovascular: "心血管",
+    eye: "眼睛",
+    immune: "免疫"
+  };
+
   async function sendMessage() {
     const res = await fetch('/api/submit', {
       method: 'POST',
@@ -254,19 +267,32 @@ export default function Home() {
   };
 
   // 切換九大項時，若無資料則初始化
-  const handleRecommendItemChange = (item) => {
+  const handleRecommendItemChange = async (item) => {
     setSelectedRecommendItem(item);
+
+    if (!item) return;
+
+    // 查詢該 item 是否有推薦資料
+    const res = await fetch(`/api/recommend?item=${item}`);
+    const data = await res.json();
+
     setRecommendCache(prev => {
-      if (!item) return prev;
-      if (prev[item]) return prev;
-      // 初始化1~10分的資料
-      return {
-        ...prev,
-        [item]: Array.from({ length: 10 }, (_, i) => i + 1).reduce((acc, score) => {
-          acc[score] = { products: [], note: '', productInput: '' };
-          return acc;
-        }, {})
-      };
+      if (data.success && data.recommend && data.recommend.scores) {
+        // 有資料，直接帶入
+        return {
+          ...prev,
+          [item]: data.recommend.scores
+        };
+      } else {
+        // 沒有資料，初始化
+        return {
+          ...prev,
+          [item]: Array.from({ length: 10 }, (_, i) => i + 1).reduce((acc, score) => {
+            acc[score] = { products: [], note: '', productInput: '' };
+            return acc;
+          }, {})
+        };
+      }
     });
   };
 
@@ -336,6 +362,25 @@ export default function Home() {
     }));
   };
 
+  const handleSaveRecommend = async () => {
+    if (!selectedRecommendItem) return;
+    const data = {
+      item: selectedRecommendItem, // 這裡是英文代碼
+      scores: recommendCache[selectedRecommendItem]
+    };
+    const res = await fetch('/api/recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) {
+      alert('儲存成功！');
+    } else {
+      alert('儲存失敗：' + result.error);
+    }
+  };
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-100">
@@ -345,7 +390,7 @@ export default function Home() {
             {/* 頁籤切換 */}
             <div className="flex space-x-8 mb-8 border-b border-gray-300">
               <button
-                className={`px-6 py-2 font-semibold transition-colors duration-200 border-b-4 ${
+                className={`px-6 py-2 font-bold transition-colors duration-200 border-b-4 ${
                   mainTab === 'responses'
                     ? 'border-blue-600 text-blue-700'
                     : 'border-transparent text-gray-500 hover:text-blue-700'
@@ -355,7 +400,7 @@ export default function Home() {
                 Typeform回覆資料
               </button>
               <button
-                className={`px-6 py-2 font-semibold transition-colors duration-200 border-b-4 ${
+                className={`px-6 py-2 font-bold transition-colors duration-200 border-b-4 ${
                   mainTab === 'weight'
                     ? 'border-blue-600 text-blue-700'
                     : 'border-transparent text-gray-500 hover:text-blue-700'
@@ -365,7 +410,7 @@ export default function Home() {
                 設定分數
               </button>
               <button
-                className={`px-6 py-2 font-semibold transition-colors duration-200 border-b-4 ${
+                className={`px-6 py-2 font-bold transition-colors duration-200 border-b-4 ${
                   mainTab === 'recommend'
                     ? 'border-blue-600 text-blue-700'
                     : 'border-transparent text-gray-500 hover:text-blue-700'
@@ -383,7 +428,7 @@ export default function Home() {
                 {selectedResponse ? (
                   <div>
                     <button
-                      className="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm"
+                      className="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm font-bold"
                       onClick={() => setSelectedResponse(null)}
                     >返回列表</button>
                     <div className="border rounded-lg p-4 bg-gray-50">
@@ -529,8 +574,8 @@ export default function Home() {
                     onChange={e => handleRecommendItemChange(e.target.value)}
                   >
                     <option value="">請選擇九大項</option>
-                    {customItems.map(item => (
-                      <option key={item} value={item}>{item}</option>
+                    {Object.entries(itemMap).map(([code, label]) => (
+                      <option key={code} value={code}>{label}</option>
                     ))}
                   </select>
                 </div>
@@ -562,7 +607,7 @@ export default function Home() {
                                   />
                                   <button
                                     type="button"
-                                    className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 font-bold"
                                     onClick={() => addRecommendProduct(score)}
                                   >新增</button>
                                 </div>
@@ -572,7 +617,7 @@ export default function Home() {
                                       {code}
                                       <button
                                         type="button"
-                                        className="ml-1 text-red-500 hover:text-red-700"
+                                        className="ml-1 text-red-500 hover:text-red-700 font-bold"
                                         onClick={() => removeRecommendProduct(score, code)}
                                       >×</button>
                                     </span>
@@ -595,6 +640,14 @@ export default function Home() {
                     </table>
                   </div>
                 )}
+                <div className="flex justify-end mt-4">
+                  <button
+                    className="px-4 py-2 bg-green-500 text-white rounded font-bold"
+                    onClick={handleSaveRecommend}
+                  >
+                    儲存推薦資料
+                  </button>
+                </div>
               </section>
             )}
           </main>
