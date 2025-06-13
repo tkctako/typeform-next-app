@@ -1,4 +1,4 @@
-// src/app/api/get-responses-by-email/route.js
+// src/app/api/get-responses-by-email/[email]/route.js
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,12 +11,11 @@ export async function OPTIONS() {
   return new Response(null, { status: 200, headers: corsHeaders });
 }
 
-export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const email = searchParams.get('email');
+export async function GET(request, { params }) {
+  const email = params.email;
 
   if (!email) {
-    return new Response(JSON.stringify({ message: 'Email query parameter is required' }), {
+    return new Response(JSON.stringify({ message: 'Email is required' }), {
       status: 400,
       headers: corsHeaders,
     });
