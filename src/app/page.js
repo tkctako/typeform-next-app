@@ -82,7 +82,9 @@ export default function Home() {
     fetchResponse();
     fetchProducts();
     fetchCustomers();
+    
     fetchCustomers('655336');
+    testGetResponseBySession();
   }, []);
 
   // 分數輸入處理
@@ -380,6 +382,13 @@ export default function Home() {
       alert('儲存失敗：' + result.error);
     }
   };
+
+  async function testGetResponseBySession() {
+    const sessionId = '06a3a57c-003e-4e2f-a149-3af09069af69';
+    const res = await fetch(`/api/get-responses-by-session/${sessionId}`);
+    const data = await res.json();
+    console.log('session_id 測試結果:', data);
+  }
 
   return (
     <ProtectedRoute>
