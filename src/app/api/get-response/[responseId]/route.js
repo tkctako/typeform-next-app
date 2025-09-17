@@ -1,6 +1,55 @@
 import { NextResponse } from 'next/server';
 
-
+/**
+ * @swagger
+ * /api/get-response/{responseId}:
+ *   get:
+ *     summary: 取得特定回應資料
+ *     description: 根據回應ID從 Typeform API 取得特定回應的詳細資料
+ *     tags: [Typeform Responses]
+ *     parameters:
+ *       - in: path
+ *         name: responseId
+ *         required: true
+ *         description: 回應ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: 成功取得回應資料
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 response:
+ *                   $ref: '#/components/schemas/Response'
+ *       400:
+ *         description: 缺少必要參數
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: 找不到指定的回應
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: 伺服器錯誤
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *   options:
+ *     summary: CORS 預檢請求
+ *     description: 處理 CORS 預檢請求
+ *     tags: [CORS]
+ *     responses:
+ *       200:
+ *         description: CORS 預檢請求成功
+ */
 const TYPEFORM_TOKEN = process.env.TYPEFORM_TOKEN;
 const FORM_ID = process.env.FORM_ID;
 
