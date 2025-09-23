@@ -296,6 +296,140 @@ const swaggerDefinition = {
             example: 'Hello from API'
           }
         }
+      },
+      // 新增 get-score API 相關的 schema
+      HealthScores: {
+        type: 'object',
+        properties: {
+          腸胃: {
+            type: 'number',
+            description: '腸胃健康分數',
+            example: 2.5
+          },
+          關節: {
+            type: 'number',
+            description: '關節健康分數',
+            example: 1.5
+          },
+          泌尿: {
+            type: 'number',
+            description: '泌尿健康分數',
+            example: 0
+          },
+          皮毛: {
+            type: 'number',
+            description: '皮毛健康分數',
+            example: 1
+          },
+          情緒: {
+            type: 'number',
+            description: '情緒健康分數',
+            example: 0.5
+          },
+          體重: {
+            type: 'number',
+            description: '體重管理分數',
+            example: 2
+          },
+          心血管: {
+            type: 'number',
+            description: '心血管健康分數',
+            example: 1
+          },
+          眼睛: {
+            type: 'number',
+            description: '眼睛健康分數',
+            example: 0
+          },
+          免疫: {
+            type: 'number',
+            description: '免疫系統分數',
+            example: 1.5
+          }
+        },
+        required: ['腸胃', '關節', '泌尿', '皮毛', '情緒', '體重', '心血管', '眼睛', '免疫']
+      },
+      TopCategory: {
+        type: 'object',
+        properties: {
+          category: {
+            type: 'string',
+            description: '健康項目名稱',
+            example: '腸胃'
+          },
+          score: {
+            type: 'number',
+            description: '分數',
+            example: 2.5
+          }
+        },
+        required: ['category', 'score']
+      },
+      ScoreRawData: {
+        type: 'object',
+        properties: {
+          response_id: {
+            type: 'string',
+            description: 'Typeform Response ID',
+            example: 'ugplskupcpikn8xvlougpl1f2vlqonr1'
+          },
+          submitted_at: {
+            type: 'string',
+            format: 'date-time',
+            description: '提交時間',
+            example: '2025-07-25T03:50:29Z'
+          },
+          answers_count: {
+            type: 'integer',
+            description: '答案總數',
+            example: 25
+          }
+        },
+        required: ['response_id', 'submitted_at', 'answers_count']
+      },
+      GetScoreResponse: {
+        type: 'object',
+        properties: {
+          success: {
+            type: 'boolean',
+            description: '是否成功',
+            example: true
+          },
+          responseId: {
+            type: 'string',
+            description: 'Typeform Response ID',
+            example: 'ugplskupcpikn8xvlougpl1f2vlqonr1'
+          },
+          scores: {
+            $ref: '#/components/schemas/HealthScores'
+          },
+          top_categories: {
+            type: 'array',
+            items: {
+              $ref: '#/components/schemas/TopCategory'
+            },
+            description: '最高分數的前三個健康項目',
+            example: [
+              { category: '腸胃', score: 2.5 },
+              { category: '體重', score: 2 },
+              { category: '關節', score: 1.5 }
+            ]
+          },
+          total_questions_processed: {
+            type: 'integer',
+            description: '處理的問題總數',
+            example: 25
+          },
+          message: {
+            type: 'string',
+            description: '回應訊息',
+            example: '分數計算完成'
+          },
+          raw_data: {
+            $ref: '#/components/schemas/ScoreRawData'
+          }
+        },
+        required: ['success', 'responseId', 'scores', 'top_categories', 'total_questions_processed', 'message', 'raw_data']
       }
     }
   },
