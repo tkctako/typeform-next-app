@@ -32,7 +32,7 @@ const PetBreed = mongoose.models.PetBreed || mongoose.model('PetBreed', PetBreed
 async function seedPetBreeds() {
   try {
     // 連接 MongoDB
-    const MONGODB_URI = 'mongodb://mongo:2vCSAw7cH0RYyDxL51OJ4IWBEd3T98P6@hnd1.clusters.zeabur.com:31291';
+    const MONGODB_URI = process.env.MONGODB_URI;
     await mongoose.connect(MONGODB_URI);
     console.log('✅ 已連接到 MongoDB');
 

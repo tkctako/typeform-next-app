@@ -19,17 +19,6 @@ export default function Home() {
   // Typeform 問題權重暫存資料 - 從 JSON 檔案讀取
   const [answerWeights, setAnswerWeights] = useState({});
 
-  // 測試用的函數
-  async function sendMessage() {
-    const res = await fetch('/api/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: '你', message: '哈囉 MongoDB' })
-    })
-  
-    const result = await res.json()
-    alert(result.message)
-  }
   
   // 取得回覆資料
   const fetchResponse = async () => {
