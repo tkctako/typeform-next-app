@@ -430,6 +430,70 @@ const swaggerDefinition = {
           }
         },
         required: ['success', 'responseId', 'scores', 'top_categories', 'total_questions_processed', 'message', 'raw_data']
+      },
+      // 新增 PetInfo schema
+      PetInfo: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', description: '寵物類型', example: 'dog', enum: ['cat', 'dog'] },
+          breed: { type: 'string', description: '寵物品種名稱', example: '英國古代牧羊犬' },
+          details: {
+            type: 'object',
+            nullable: true,
+            description: '寵物詳細資料',
+            properties: {
+              description: { type: 'string', description: '品種描述', example: '英國古代牧羊犬是一種大型犬種，擁有濃密的長毛...' },
+              healthItems: {
+                type: 'object',
+                description: '健康項目說明',
+                additionalProperties: { type: 'string' },
+                example: {
+                  '關節與肢體結構發展': '大型犬種需要注意關節健康...',
+                  '皮毛與皮膚狀況': '長毛需要定期梳理...'
+                }
+              }
+            }
+          }
+        },
+        required: ['type', 'breed', 'details']
+      },
+      // 更新 GetResultResponse schema
+      GetResultResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', description: '是否成功', example: true },
+          session_id: { type: 'string', description: 'Typeform Session ID', example: 'ugplskupcpikn8xvlougpl1f2vlqonr1' },
+          pet_info: { $ref: '#/components/schemas/PetInfo' },
+          scores: { $ref: '#/components/schemas/HealthScores' },
+          top_categories: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/TopCategory' },
+            description: '最高分數的前三個健康項目',
+            example: [ { category: '腸胃', score: 2.5 }, { category: '體重', score: 2 }, { category: '關節', score: 1.5 } ]
+          },
+          recommendations: {
+            type: 'object',
+            description: '推薦商品資料',
+            additionalProperties: { $ref: '#/components/schemas/RecommendationItem' },
+            example: {
+              '腸胃': {
+                score: 2.5,
+                targetScore: 3,
+                data: {
+                  products: ['PROD001', 'PROD002'],
+                  note: '高關注',
+                  description: '針對腸胃問題的專業配方...',
+                  ingredients: '益生菌、消化酵素...',
+                  formula: '腸胃保健配方'
+                }
+              }
+            }
+          },
+          total_questions_processed: { type: 'integer', description: '處理的問題總數', example: 25 },
+          message: { type: 'string', description: '回應訊息', example: '分數計算完成' },
+          raw_data: { $ref: '#/components/schemas/ScoreRawData' }
+        },
+        required: ['success', 'session_id', 'pet_info', 'scores', 'top_categories', 'recommendations', 'total_questions_processed', 'message', 'raw_data']
       }
     }
   },

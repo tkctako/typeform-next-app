@@ -66,10 +66,10 @@ export default function TypeformResponses({ questions }) {
                 <tr key={res.response_id} className="bg-white">
                   <td className="border p-2">
                     <button
-                      className="text-blue-600 underline hover:text-blue-800"
+                      className="cursor-pointer text-blue-600 underline hover:text-blue-800"
                       onClick={() => setSelectedResponse(res)}
                     >
-                      {res.user_name || `使用者 #${index + 1}`}
+                      {res.hidden.customer_email || `使用者 #${index + 1}`}
                     </button>
                   </td>
                   <td className="border p-2">

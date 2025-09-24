@@ -103,15 +103,40 @@ export async function POST(request) {
     await mongoose.connect(process.env.MONGODB_URI);
 
     const body = await request.json();
-    // 用 item 當唯一 key，重複就覆蓋
+    console.log('接收到的資料:', JSON.stringify(body, null, 2));
+    
+    // 確保 scores 資料格式正確
+    const scoresData = {};
+    for (const [score, data] of Object.entries(body.scores)) {
+      scoresData[score] = {
+        products: data.products || [],
+        note: data.note || '',
+        productInput: data.productInput || '',
+        description: data.description || '',
+        ingredients: data.ingredients || '',
+        formula: data.formula || ''
+      };
+    }
+    
+    console.log('處理後的 scores 資料:', JSON.stringify(scoresData, null, 2));
+    
+    // 使用 findOneAndUpdate 直接更新
     const recommend = await Recommend.findOneAndUpdate(
       { item: body.item },
-      { $set: { scores: body.scores, updatedAt: new Date() } },
+      { 
+        $set: { 
+          scores: scoresData, 
+          updatedAt: new Date() 
+        } 
+      },
       { upsert: true, new: true }
     );
 
+    console.log('儲存後的資料:', JSON.stringify(recommend, null, 2));
+
     return NextResponse.json({ success: true, recommend });
   } catch (error) {
+    console.error('儲存推薦資料錯誤:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
@@ -127,13 +152,19 @@ export async function GET(request) {
     if (item) {
       // 查詢單一九大項
       const recommend = await Recommend.findOne({ item });
-      return NextResponse.json({ success: true, recommend });
+      if (recommend) {
+        console.log('從資料庫讀取的資料:', JSON.stringify(recommend, null, 2));
+        return NextResponse.json({ success: true, recommend });
+      } else {
+        return NextResponse.json({ success: true, recommend: null });
+      }
     } else {
       // 查詢全部
       const recommends = await Recommend.find({});
       return NextResponse.json({ success: true, recommends });
     }
   } catch (error) {
+    console.error('取得推薦資料錯誤:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

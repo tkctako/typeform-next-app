@@ -222,7 +222,7 @@ export default function ProductRecommendations() {
               <tr>
                 <th className="border p-2 text-left">分數</th>
                 <th className="border p-2 text-left">推薦商品（產品編碼）</th>
-                <th className="border p-2 text-left">建議關注大綱</th>
+                <th className="border p-2 text-left">關注等級</th>
                 <th className="border p-2 text-left">詳細介紹</th>
                 <th className="border p-2 text-left">推薦配方成份</th>
                 <th className="border p-2 text-left">對應配方</th>
@@ -267,7 +267,7 @@ export default function ProductRecommendations() {
                     <textarea
                       className="w-full px-2 py-1 border rounded"
                       rows={3}
-                      placeholder="建議關注大綱"
+                      placeholder="關注等級"
                       value={recommendCache[selectedRecommendItem]?.[score]?.note || ''}
                       onChange={e => handleRecommendNoteChange(score, e.target.value)}
                     />
