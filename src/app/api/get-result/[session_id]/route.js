@@ -98,10 +98,12 @@ function extractPetInfo(answers) {
     // 品種
     else if (index === 3) {
         petBreed = answer.text;
+        console.log('petBreed', petBreed);
       }
-      else if (index === 4) {
-        ageStage  = answer.text;
-      }
+    else if (index === 4) {
+    ageStage  = answer.choice.label;
+    console.log('ageStage', ageStage);
+    }
     // 其他答案使用 choice.id
     else if (answer.type === 'choice' && answer.choice?.id) {
       switch (answer.choice.id) {
@@ -169,29 +171,26 @@ async function getRecommendationsByScore(scores, topCategories) {
   try {
     await connectDB();
     
-    console.log('開始獲取推薦商品，分數:', scores);
-    console.log('前四名類別:', topCategories.slice(0, 4));
     
     const zeroScoreRecommendations = {}; // 0分區塊
     const highScoreRecommendations = {}; // 有分數區塊
     const scoreLevels = {}; // 關注等級
     
-    // 1. 獲取所有九大項的0分推薦商品 - 使用查詢全部的方式
-    console.log('獲取所有九大項的0分推薦商品');
+ 
     
     // 比照 recommend API 的查詢全部方式
     const allRecommends = await Recommend.find({});
-    console.log('查詢到的全部推薦資料:', allRecommends);
     
     // 遍歷所有九大項，獲取0分推薦資料和關注等級
     for (const [category, categoryCode] of Object.entries(categoryMap)) {
-      console.log(`處理0分項目: ${category} -> ${categoryCode}`);
+
+        
       
       const recommend = allRecommends.find(r => r.item === categoryCode);
-      console.log(`找到推薦資料:`, recommend);
+     
       
       if (recommend && recommend.scores && recommend.scores['0']) {
-        console.log(`0分推薦資料:`, recommend.scores['0']);
+;
         zeroScoreRecommendations[category] = {
           score: 0,
           data: recommend.scores['0']
