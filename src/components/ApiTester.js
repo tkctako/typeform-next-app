@@ -36,7 +36,7 @@ export default function ApiTester() {
     setIsModalOpen(true);
     
     try {
-      const sessionId = 'ece0b349-b233-43ef-9a25-336671c78122';
+      const sessionId = 'f5160a2c-b113-4109-a8f5-5ae957b3a1a8';
       const response = await fetch(`/api/get-result/${sessionId}`);
       const data = await response.json();
       setApiTestResult(data);

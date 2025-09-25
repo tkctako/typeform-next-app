@@ -86,34 +86,35 @@ function extractPetInfo(answers) {
   let ageStage = null;
   let isNeutered = null;
   
+
   // 遍歷答案根據 field ID 或 choice ID 提取資訊
-  answers.forEach((answer) => {
+  answers.forEach((answer, index) => {
     // 姓名有 field.id
     if (answer.field?.id === "ZfnWUMyyIWWt") { // 姓名
       if (answer.type === 'text' && answer.text) {
         name = answer.text;
       }
     }
-    else if (answer.field?.id === "99FubVegwyW9") { // 品種
-      if (answer.type === 'text' && answer.text) {
+    // 品種
+    else if (index === 3) {
         petBreed = answer.text;
       }
-    }
     // 其他答案使用 choice.id
     else if (answer.type === 'choice' && answer.choice?.id) {
       switch (answer.choice.id) {
         case "iiVn0Pk3k02B": // 性別
           gender = answer.choice.label;
           break;
-        case "bGKe1xCLqgt7": // 種族
-          // 將中文轉換為英文類型
-          if (answer.choice.label === '汪星人') {
-            petType = 'dog';
-          } else if (answer.choice.label === '喵星人') {
+        case "2GHPM4kW5EBb": // 喵星人
             petType = 'cat';
-          }
           break;
-        case "Kd5iKQLGPHaL": // 年齡
+        case "bGKe1xCLqgt7": // 汪星人
+            petType = 'dog';
+          break;
+        case "kprrRnqY5Vzs": // 貓星人年齡
+          ageStage = answer.choice.label;
+          break;
+        case "Kd5iKQLGPHaL": // 汪星人年齡
           ageStage = answer.choice.label;
           break;
         case "7JfAXMaGDvjU": // 是否結紮
