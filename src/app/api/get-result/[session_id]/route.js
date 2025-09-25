@@ -99,10 +99,16 @@ function extractPetInfo(answers) {
     else if (index === 3) {
         petBreed = answer.text;
       }
+      else if (index === 4) {
+        ageStage  = answer.text;
+      }
     // 其他答案使用 choice.id
     else if (answer.type === 'choice' && answer.choice?.id) {
       switch (answer.choice.id) {
-        case "iiVn0Pk3k02B": // 性別
+        case "L0iKsWwPL3D7": // 女
+          gender = answer.choice.label;
+          break;
+        case "iiVn0Pk3k02B": // 男
           gender = answer.choice.label;
           break;
         case "2GHPM4kW5EBb": // 喵星人
@@ -111,13 +117,10 @@ function extractPetInfo(answers) {
         case "bGKe1xCLqgt7": // 汪星人
             petType = 'dog';
           break;
-        case "kprrRnqY5Vzs": // 貓星人年齡
-          ageStage = answer.choice.label;
+        case "3Gnyce6aS6jm": // 已結紮
+          isNeutered = answer.choice.label;
           break;
-        case "Kd5iKQLGPHaL": // 汪星人年齡
-          ageStage = answer.choice.label;
-          break;
-        case "7JfAXMaGDvjU": // 是否結紮
+        case "7JfAXMaGDvjU": // 未結紮
           isNeutered = answer.choice.label;
           break;
       }
