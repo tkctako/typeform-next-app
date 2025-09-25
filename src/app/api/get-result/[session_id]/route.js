@@ -79,28 +79,51 @@ async function connectDB() {
 
 // 從問卷答案中提取寵物資訊
 function extractPetInfo(answers) {
+  let name = null;
+  let gender = null;
   let petType = null;
   let petBreed = null;
+  let ageStage = null;
+  let isNeutered = null;
   
-  // 遍歷答案找到第三題和第四題
-  answers.forEach((answer, index) => {
-    if (index === 2) { // 第三題 (index 2)
-      if (answer.type === 'choice' && answer.choice?.label) {
-        // 將中文轉換為英文類型
-        if (answer.choice.label === '汪星人') {
-          petType = 'dog';
-        } else if (answer.choice.label === '喵星人') {
-          petType = 'cat';
-        }
+  // 遍歷答案根據 field ID 或 choice ID 提取資訊
+  answers.forEach((answer) => {
+    // 姓名有 field.id
+    if (answer.field?.id === "ZfnWUMyyIWWt") { // 姓名
+      if (answer.type === 'text' && answer.text) {
+        name = answer.text;
       }
-    } else if (index === 3) { // 第四題 (index 3)
+    }
+    else if (answer.field?.id === "99FubVegwyW9") { // 品種
       if (answer.type === 'text' && answer.text) {
         petBreed = answer.text;
       }
     }
+    // 其他答案使用 choice.id
+    else if (answer.type === 'choice' && answer.choice?.id) {
+      switch (answer.choice.id) {
+        case "iiVn0Pk3k02B": // 性別
+          gender = answer.choice.label;
+          break;
+        case "bGKe1xCLqgt7": // 種族
+          // 將中文轉換為英文類型
+          if (answer.choice.label === '汪星人') {
+            petType = 'dog';
+          } else if (answer.choice.label === '喵星人') {
+            petType = 'cat';
+          }
+          break;
+        case "Kd5iKQLGPHaL": // 年齡
+          ageStage = answer.choice.label;
+          break;
+        case "7JfAXMaGDvjU": // 是否結紮
+          isNeutered = answer.choice.label;
+          break;
+      }
+    }
   });
   
-  return { petType, petBreed };
+  return { name, gender, petType, petBreed, ageStage, isNeutered };
 }
 
 // 從 MongoDB 獲取寵物詳細資料
@@ -147,6 +170,7 @@ async function getRecommendationsByScore(scores, topCategories) {
     
     const zeroScoreRecommendations = {}; // 0分區塊
     const highScoreRecommendations = {}; // 有分數區塊
+    const scoreLevels = {}; // 關注等級
     
     // 1. 獲取所有九大項的0分推薦商品 - 使用查詢全部的方式
     console.log('獲取所有九大項的0分推薦商品');
@@ -155,7 +179,7 @@ async function getRecommendationsByScore(scores, topCategories) {
     const allRecommends = await Recommend.find({});
     console.log('查詢到的全部推薦資料:', allRecommends);
     
-    // 遍歷所有九大項，獲取0分推薦資料
+    // 遍歷所有九大項，獲取0分推薦資料和關注等級
     for (const [category, categoryCode] of Object.entries(categoryMap)) {
       console.log(`處理0分項目: ${category} -> ${categoryCode}`);
       
@@ -170,6 +194,32 @@ async function getRecommendationsByScore(scores, topCategories) {
         };
       } else {
         console.log(`沒有找到 ${categoryCode} 的0分推薦資料`);
+      }
+      
+      // 獲取對應分數的關注等級
+      const score = scores[category];
+      if (score !== undefined && recommend && recommend.scores) {
+        // 尋找最接近的分數
+        let targetScore = Math.floor(score);
+        if (score % 1 !== 0) {
+          // 如果有小數點，向上取整
+          targetScore = Math.ceil(score);
+        }
+        
+        // 確保分數在0-10範圍內
+        targetScore = Math.max(0, Math.min(10, targetScore));
+        
+        if (recommend.scores[targetScore.toString()]) {
+          scoreLevels[category] = {
+            score: score,
+            level: recommend.scores[targetScore.toString()].note || '無'
+          };
+        } else {
+          scoreLevels[category] = {
+            score: score,
+            level: '無'
+          };
+        }
       }
     }
     
@@ -219,7 +269,8 @@ async function getRecommendationsByScore(scores, topCategories) {
     
     const result = {
       zeroScoreRecommendations,
-      highScoreRecommendations
+      highScoreRecommendations,
+      scoreLevels
     };
     
     console.log('最終推薦結果:', result);
@@ -278,8 +329,8 @@ export async function GET(request, { params }) {
     const answers = matchedResponse.answers || [];
 
     // 從答案中提取寵物資訊
-    const { petType, petBreed } = extractPetInfo(answers);
-    console.log('提取的寵物資訊:', { petType, petBreed });
+    const { name, gender, petType, petBreed, ageStage, isNeutered } = extractPetInfo(answers);
+    console.log('提取的寵物資訊:', { name, gender, petType, petBreed, ageStage, isNeutered });
 
     // 使用共用的分數計算功能
     const { scores, topCategories, totalQuestionsProcessed } = await calculateHealthScores(answers);
@@ -297,8 +348,12 @@ export async function GET(request, { params }) {
       success: true,
       session_id: session_id,
       pet_info: {
+        name: name,
+        gender: gender,
         type: petType,
         breed: petBreed,
+        ageStage: ageStage,
+        isNeutered: isNeutered,
         details: petDetails ? {
           description: petDetails.description,
           healthItems: Object.fromEntries(petDetails.healthItems || new Map())
